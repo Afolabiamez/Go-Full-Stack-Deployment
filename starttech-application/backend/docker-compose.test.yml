@@ -1,0 +1,42 @@
+services:
+
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
+
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7
+    container_name: redis
+
+    ports:
+      - "6379:6379"
+
+  backend:
+    image: muchtodo-api:latest
+
+    container_name: muchtodo-api
+
+    depends_on:
+      - mongodb
+      - redis
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      PORT: 8080
+
+      DB_NAME: much_todo_db
+
+      JWT_SECRET_KEY: testsecret
+
+      ENABLE_CACHE: true
+
+      REDIS_ADDR: redis:6379
+
+      MONGO_URI: mongodb://mongodb:27017
+
+    restart: unless-stopped

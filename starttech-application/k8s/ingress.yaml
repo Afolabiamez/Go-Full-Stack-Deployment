@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+
+kind: Ingress
+
+metadata:
+  name: muchtodo-ingress
+  namespace: muchtodo
+
+  annotations:
+
+    kubernetes.io/ingress.class: alb
+
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    alb.ingress.kubernetes.io/target-type: ip
+
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+
+    alb.ingress.kubernetes.io/success-codes: "200"
+
+    alb.ingress.kubernetes.io/security-groups: sg-02fded24e075b4a8d
+
+    alb.ingress.kubernetes.io/load-balancer-name: muchtodo-alb
+
+    alb.ingress.kubernetes.io/subnets: subnet-04433634f0f038cd6,subnet-0770d84bd66683578
+
+spec:
+
+  ingressClassName: alb
+
+  rules:
+
+    - http:
+
+        paths:
+
+          - path: /
+
+            pathType: Prefix
+
+            backend:
+
+              service:
+
+                name: muchtodo-service
+
+                port:
+
+                  number: 80

@@ -1,0 +1,51 @@
+name: Backend Production CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'starttech-application/backend/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Docker Image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: "muchtodo-api"
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd starttech-application/backend
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update EKS Kubeconfig Context
+        run: |
+          aws eks update-kubeconfig --region eu-west-1 --name starttech-cluster
+
+      - name: Deploy Updated Container Image to Kubernetes Cluster
+        run: |
+          sed -i "s|://amazonaws.com|${{ steps.login-ecr.outputs.registry }}/muchtodo-api:${{ github.sha }}|g" starttech-application/k8s/deployment.yaml
+          kubectl apply -f starttech-application/k8s/deployment.yaml
+          kubectl rollout status deployment/muchtodo-api -n muchtodo

@@ -1,0 +1,53 @@
+name: Frontend Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'starttech-application/frontend/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node_version: 20
+          cache: 'npm'
+          cache-dependency-path: 'starttech-application/frontend/package-lock.json'
+
+      - name: Install Project Dependencies
+        run: |
+          cd starttech-application/frontend
+          npm ci
+
+      - name: Compile and Build Production Assets
+        env:
+          VITE_API_URL: "/api/*"
+        run: |
+          cd starttech-application/frontend
+          npm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Sync Production Build to Amazon S3
+        run: |
+          aws s3 sync starttech-application/frontend/dist/ s3://starttech-frontend-afolabi/ --delete
+
+      - name: Invalidate CloudFront Edge Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id E22NYFYCRH5TKL --paths "/*"
