@@ -228,3 +228,12 @@ module "storage" {
   cloudfront_arn = module.cdn.cloudfront_arn
 
 }
+
+terraform {
+  backend "s3" {
+    bucket         = "starttech-terraform-state-afolabi"
+    key            = "production/terraform.tfstate"
+    region         = "eu-west-1"
+    encrypt        = true
+  }
+}
