@@ -231,10 +231,10 @@ module "storage" {
 
 terraform {
   backend "s3" {
-    bucket         = "starttech-terraform-state-afolabi"
-    key            = "production/terraform.tfstate"
-    region         = "eu-west-1"
-    encrypt        = true
+    bucket  = "starttech-terraform-state-afolabi"
+    key     = "production/terraform.tfstate"
+    region  = "eu-west-1"
+    encrypt = true
   }
 }
 
@@ -247,9 +247,10 @@ resource "aws_iam_user" "grader" {
 # 2. Enable Web Management Console access with a secure password
 resource "aws_iam_user_login_profile" "grader_profile" {
   user                    = aws_iam_user.grader.name
-  password                = "StartTechGradeMe2026!"
+  password_length         = 20
   password_reset_required = false
 }
+
 
 # 3. Create programmatic CLI Access Keys for the automated grading script
 resource "aws_iam_access_key" "grader_keys" {
