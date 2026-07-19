@@ -231,9 +231,9 @@ module "storage" {
 
 terraform {
   backend "s3" {
-    bucket         = "starttech-terraform-state-afolabi"
-    key            = "production/terraform.tfstate"
-    region         = "eu-west-1"
-    encrypt        = true
+    bucket  = "starttech-terraform-state-afolabi"
+    key     = "production/terraform.tfstate"
+    region  = "eu-west-1"
+    encrypt = true
   }
 }
