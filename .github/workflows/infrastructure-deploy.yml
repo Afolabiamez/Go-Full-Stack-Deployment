@@ -51,8 +51,17 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
+        env:
+          TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
+          TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
+          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
         run: terraform plan -no-color
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
+          TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
+          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
         run: terraform apply -auto-approve
+
