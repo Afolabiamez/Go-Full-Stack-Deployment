@@ -231,9 +231,87 @@ module "storage" {
 
 terraform {
   backend "s3" {
-    bucket  = "starttech-terraform-state-afolabi"
-    key     = "production/terraform.tfstate"
-    region  = "eu-west-1"
-    encrypt = true
+    bucket         = "starttech-terraform-state-afolabi"
+    key            = "production/terraform.tfstate"
+    region         = "eu-west-1"
+    encrypt        = true
   }
+}
+
+# 1. Create the IAM User for the grader
+resource "aws_iam_user" "grader" {
+  name          = "start-tech-grader"
+  force_destroy = true
+}
+
+# 2. Enable Web Management Console access with a secure password
+resource "aws_iam_user_login_profile" "grader_profile" {
+  user                    = aws_iam_user.grader.name
+  password                = "StartTechGradeMe2026!"
+  password_reset_required = false
+}
+
+# 3. Create programmatic CLI Access Keys for the automated grading script
+resource "aws_iam_access_key" "grader_keys" {
+  user = aws_iam_user.grader.name
+}
+
+# 4. Attach the exact requested Least Privilege Security Policy
+resource "aws_iam_user_policy" "grader_policy" {
+  name = "GraderReadOnlyPolicy"
+  user = aws_iam_user.grader.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "GraderReadOnlyS3"
+        Effect = "Allow"
+        Action = [
+          "s3:ListAllMyBuckets",
+          "s3:GetBucketPublicAccessBlock",
+          "s3:ListBucket"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "GraderReadOnlyCloudFront"
+        Effect = "Allow"
+        Action = [
+          "cloudfront:ListDistributions",
+          "cloudfront:GetDistributionConfig"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "GraderReadOnlyEKS"
+        Effect = "Allow"
+        Action = [
+          "eks:DescribeCluster",
+          "eks:ListNodegroups",
+          "eks:DescribeNodegroup"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "GraderReadOnlyElastiCache"
+        Effect = "Allow"
+        Action = [
+          "elasticache:DescribeCacheClusters"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# 5. Output the Programmatic Access Keys so you can easily copy them for your submission
+output "grader_access_key_id" {
+  value     = aws_iam_access_key.grader_keys.id
+  sensitive = false
+}
+
+output "grader_secret_access_key" {
+  value     = aws_iam_access_key.grader_keys.secret
+  sensitive = true
 }
