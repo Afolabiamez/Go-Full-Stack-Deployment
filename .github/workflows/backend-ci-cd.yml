@@ -49,4 +49,16 @@ jobs:
           sed -i "s|://amazonaws.com|${{ steps.login-ecr.outputs.registry }}/muchtodo-api:${{ github.sha }}|g" starttech-application/k8s/deployment.yaml
           kubectl apply -f starttech-application/k8s/deployment.yaml
           kubectl rollout status deployment/muchtodo-api -n muchtodo
+
+      - name: Deploy Updated Container Image to Kubernetes Cluster
+        run: |
+          # 1. Apply configuration updates
+          kubectl apply -f starttech-application/k8s/deployment.yaml
+          
+          # 2. Force update the image reference directly to guarantee it uses the latest build
+          kubectl set image deployment/muchtodo-api muchtodo-api=://amazonaws.com -n muchtodo
+          
+          # 3. Monitor rollout status
+          kubectl rollout status deployment/muchtodo-api -n muchtodo
+
       

@@ -1,0 +1,40 @@
+{
+    "TargetHealthDescriptions": [
+        {
+            "Target": {
+                "Id": "10.0.3.20",
+                "Port": 8080,
+                "AvailabilityZone": "eu-west-1a"
+            },
+            "HealthCheckPort": "8080",
+            "TargetHealth": {
+                "State": "unhealthy",
+                "Reason": "Target.Timeout",
+                "Description": "Request timed out"
+            },
+            "AdministrativeOverride": {
+                "State": "no_override",
+                "Reason": "AdministrativeOverride.NoOverride",
+                "Description": "No override is currently active on target"
+            }
+        },
+        {
+            "Target": {
+                "Id": "10.0.4.211",
+                "Port": 8080,
+                "AvailabilityZone": "eu-west-1b"
+            },
+            "HealthCheckPort": "8080",
+            "TargetHealth": {
+                "State": "unhealthy",
+                "Reason": "Target.Timeout",
+                "Description": "Request timed out"
+            },
+            "AdministrativeOverride": {
+                "State": "no_override",
+                "Reason": "AdministrativeOverride.NoOverride",
+                "Description": "No override is currently active on target"
+            }
+        }
+    ]
+}

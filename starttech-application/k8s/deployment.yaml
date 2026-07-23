@@ -2,62 +2,76 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: muchtodo
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: muchtodo-api
   namespace: muchtodo
+
 spec:
   replicas: 2
+
   selector:
     matchLabels:
       app: muchtodo-api
+
   template:
     metadata:
       labels:
         app: muchtodo-api
+
     spec:
       containers:
         - name: muchtodo-api
-          # Must match the exact string pattern the backend-ci-cd.yml workflow searches for
-          image: ://amazonaws.com
+          image: 027252077884.dkr.ecr.eu-west-1.amazonaws.com/muchtodo-api:latest
           imagePullPolicy: Always
+
           ports:
             - containerPort: 8080
+
           env:
             - name: PORT
               value: "8080"
+
             - name: DB_NAME
               value: "much_todo_db"
+
             - name: JWT_SECRET_KEY
               value: "testsecret"
+
             - name: ENABLE_CACHE
               value: "true"
-            # Corrected back to use your actual ElastiCache Redis replication group string
+
             - name: REDIS_ADDR
-              value: "://amazonaws.com"
+              value: "starttech-redis.rezsuf.0001.euw1.cache.amazonaws.com:6379"
+
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
                   name: muchtodo-secrets
                   key: mongo-uri
+
           readinessProbe:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
             periodSeconds: 5
+
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+
           resources:
             requests:
               cpu: "200m"
               memory: "256Mi"
+
             limits:
               cpu: "500m"
               memory: "512Mi"
