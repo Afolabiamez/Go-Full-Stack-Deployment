@@ -61,6 +61,7 @@ jobs:
         env:
           TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
           TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
+          TF_VAR_my_ip: "0.0.0.0/0"
         run: terraform plan -no-color
 
       - name: Terraform Apply
@@ -68,5 +69,6 @@ jobs:
         env:
           TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
           TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
+          TF_VAR_my_ip: "0.0.0.0/0"
         run: terraform apply -auto-approve
 
