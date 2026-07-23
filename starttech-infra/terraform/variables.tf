@@ -5,7 +5,7 @@ variable "aws_region" {
 }
 
 variable "my_ip" {
-  description = "102.88.111.146/32"
+  description = "105.113.94.203/32"
   type        = string
 }
 

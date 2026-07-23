@@ -49,12 +49,18 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+      
+      - name: Get GitHub Runner Public IP
+        id: cloud_ip
+        run: |
+          # Fetch the temporary public IP of this GitHub cloud runner
+          RUNNER_IP=$(curl -s https://amazonaws.com)
+          echo "TF_VAR_my_ip=${RUNNER_IP}/32" >> $GITHUB_ENV
 
       - name: Terraform Plan
         env:
           TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
           TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
-          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
         run: terraform plan -no-color
 
       - name: Terraform Apply
@@ -62,6 +68,5 @@ jobs:
         env:
           TF_VAR_cluster_name: ${{ secrets.TF_VAR_CLUSTER_NAME }}
           TF_VAR_node_instance_type: ${{ secrets.TF_VAR_NODE_INSTANCE_TYPE }}
-          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
         run: terraform apply -auto-approve
 
