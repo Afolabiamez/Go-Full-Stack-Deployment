@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'starttech-infra/terraform/**'
+
   pull_request:
     branches:
       - main
@@ -20,7 +21,7 @@ jobs:
   terraform:
     name: Terraform Check and Apply
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
         working-directory: ./starttech-infra/terraform
@@ -29,7 +30,13 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup HashiCorp Terraform
+      - name: Show Repository Structure
+        run: |
+          pwd
+          ls -la
+          ls -R
+
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
@@ -41,29 +48,93 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Terraform Format Clean
-        run: terraform fmt 
+      - name: Verify AWS Credentials
+        run: |
+          aws sts get-caller-identity
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
 
       - name: Terraform Initialize
-        run: terraform init
+        env:
+          TF_LOG: DEBUG
+          TF_LOG_PATH: terraform.log
+        run: |
+          set -xe
+          terraform version
+          terraform init -input=false
 
       - name: Terraform Validate
-        run: terraform validate
+        run: |
+          set -xe
+          terraform validate
 
       - name: Terraform Plan
-        timeout-minutes: 5
+        timeout-minutes: 10
         env:
-          TF_VAR_cluster_name: "starttech-cluster"
-          TF_VAR_node_instance_type: "t3.medium"
-          TF_VAR_my_ip: "0.0.0.0/0"
-        run: terraform plan -no-color
+          TF_VAR_cluster_name: starttech-cluster
+          TF_VAR_node_instance_type: t3.medium
+          TF_VAR_my_ip: 0.0.0.0/0
+          TF_LOG: DEBUG
+          TF_LOG_PATH: terraform.log
+        run: |
+          set -xe
+
+          echo "========== Terraform Version =========="
+          terraform version
+
+          echo "========== AWS Identity =========="
+          aws sts get-caller-identity
+
+          echo "========== Current Directory =========="
+          pwd
+
+          echo "========== Directory Contents =========="
+          ls -la
+
+          echo "========== Terraform Providers =========="
+          terraform providers
+
+          echo "========== Terraform Workspace =========="
+          terraform workspace show || true
+
+          echo "========== Terraform Plan =========="
+          terraform plan \
+            -input=false \
+            -no-color \
+            -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
-          TF_VAR_cluster_name: "starttech-cluster"
-          TF_VAR_node_instance_type: "t3.medium"
-          TF_VAR_my_ip: "0.0.0.0/0"
-        run: terraform apply -auto-approve
+          TF_VAR_cluster_name: starttech-cluster
+          TF_VAR_node_instance_type: t3.medium
+          TF_VAR_my_ip: 0.0.0.0/0
+        run: |
+          set -xe
+          terraform apply -input=false -auto-approve tfplan
 
+      - name: Debug Information
+        if: always()
+        run: |
+          echo "========== Current Directory =========="
+          pwd
 
+          echo "========== Files =========="
+          ls -la
+
+          echo "========== Terraform Version =========="
+          terraform version || true
+
+          echo "========== Providers =========="
+          terraform providers || true
+
+          echo "========== Workspace =========="
+          terraform workspace show || true
+
+      - name: Upload Terraform Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-debug-logs
+          path: starttech-infra/terraform/terraform.log
