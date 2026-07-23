@@ -20,7 +20,8 @@ spec:
     spec:
       containers:
         - name: muchtodo-api
-          image: muchtodo-api-placeholder
+          # Must match the exact string pattern the backend-ci-cd.yml workflow searches for
+          image: ://amazonaws.com
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -33,6 +34,7 @@ spec:
               value: "testsecret"
             - name: ENABLE_CACHE
               value: "true"
+            # Corrected back to use your actual ElastiCache Redis replication group string
             - name: REDIS_ADDR
               value: "://amazonaws.com"
             - name: MONGO_URI
