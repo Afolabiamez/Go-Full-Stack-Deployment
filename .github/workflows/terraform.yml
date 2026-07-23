@@ -49,13 +49,6 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-      
-      - name: Get GitHub Runner Public IP
-        id: cloud_ip
-        run: |
-          # Fetch the temporary public IP of this GitHub cloud runner
-          RUNNER_IP=$(curl -s https://amazonaws.com)
-          echo "TF_VAR_my_ip=${RUNNER_IP}/32" >> $GITHUB_ENV
 
       - name: Terraform Plan
         env:
