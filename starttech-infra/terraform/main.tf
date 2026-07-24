@@ -215,7 +215,7 @@ module "cdn" {
 
   bucket_domain_name = module.storage.bucket_domain_name
 
-  alb_dns_name = "k8s-default-muchtodo-a6625479e3-1876725870.eu-west-1.elb.amazonaws.com"
+  alb_dns_name = "k8s-muchtodo-muchtodo-187a6ca0a2-693262861.eu-west-1.elb.amazonaws.com"
 
 }
 
