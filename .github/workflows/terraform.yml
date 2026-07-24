@@ -53,7 +53,7 @@ jobs:
       - name: Terraform Plan
         env:
           TF_VAR_cluster_name: "starttech-cluster"
-          TF_VAR_node_instance_type: "t3.medium"
+          TF_VAR_node_instance_type: "t3.small"
           TF_VAR_my_ip: "0.0.0.0/0"
           TF_VAR_desired_size: "2"
           TF_VAR_min_size: "2"
@@ -64,7 +64,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           TF_VAR_cluster_name: "starttech-cluster"
-          TF_VAR_node_instance_type: "t3.medium"
+          TF_VAR_node_instance_type: "t3.small"
           TF_VAR_my_ip: "0.0.0.0/0"
           TF_VAR_desired_size: "2"
           TF_VAR_min_size: "2"

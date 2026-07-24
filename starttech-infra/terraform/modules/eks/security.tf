@@ -63,11 +63,8 @@ resource "aws_security_group" "alb_sg" {
 
 
 resource "aws_security_group" "eks_nodes_sg" {
-
   name = "${var.cluster_name}-nodes"
-
   vpc_id = var.vpc_id
-
   ingress {
     from_port = 0
     to_port   = 0
@@ -81,7 +78,6 @@ resource "aws_security_group" "eks_nodes_sg" {
     security_groups = [
       aws_security_group.alb_sg.id
     ]
-
   }
   ingress {
     from_port = 1025
@@ -91,7 +87,15 @@ resource "aws_security_group" "eks_nodes_sg" {
       aws_security_group.eks_cluster_sg.id
     ]
   }
-
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    description = "Allow ALB to reach backend pods"
+    security_groups = [
+      aws_security_group.alb_sg.id
+    ]
+  }
   egress {
     from_port = 0
     to_port   = 0
@@ -100,17 +104,4 @@ resource "aws_security_group" "eks_nodes_sg" {
       "0.0.0.0/0"
     ]
   }
-}
-
-resource "aws_security_group_rule" "alb_to_worker_nodes" {
-  type = "ingress"
-
-  security_group_id        = aws_security_group.eks_nodes_sg.id
-  source_security_group_id = aws_security_group.alb_sg.id
-
-  protocol  = "tcp"
-  from_port = 8080
-  to_port   = 8080
-
-  description = "Allow ALB to reach backend pods"
 }
