@@ -51,34 +51,14 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        timeout-minutes: 5
         env:
-          TF_VAR_cluster_name: starttech-cluster
-          TF_VAR_node_instance_type: t3.medium
-          TF_VAR_my_ip: 0.0.0.0/0
-        run: |
-          set -xe
-
-          echo "===== PWD ====="
-          pwd
-
-          echo "===== FILES ====="
-          ls -la
-
-          echo "===== TERRAFORM VERSION ====="
-          terraform version
-
-          echo "===== AWS IDENTITY ====="
-          aws sts get-caller-identity
-
-          echo "===== TERRAFORM INIT ====="
-          terraform init -input=false
-
-          echo "===== TERRAFORM VALIDATE ====="
-          terraform validate
-
-          echo "===== TERRAFORM PLAN ====="
-          terraform plan -input=false -no-color
+          TF_VAR_cluster_name: "starttech-cluster"
+          TF_VAR_node_instance_type: "t3.medium"
+          TF_VAR_my_ip: "0.0.0.0/0"
+          TF_VAR_desired_size: "2"
+          TF_VAR_min_size: "2"
+          TF_VAR_max_size: "3"
+        run: terraform plan -no-color
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -86,6 +66,7 @@ jobs:
           TF_VAR_cluster_name: "starttech-cluster"
           TF_VAR_node_instance_type: "t3.medium"
           TF_VAR_my_ip: "0.0.0.0/0"
+          TF_VAR_desired_size: "2"
+          TF_VAR_min_size: "2"
+          TF_VAR_max_size: "3"
         run: terraform apply -auto-approve
-
-
