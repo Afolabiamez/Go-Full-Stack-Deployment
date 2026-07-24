@@ -27,6 +27,7 @@ The infrastructure provisions:
 
 ## Architecture Diagram
 
+```text
                                       Internet
                                           │
                                           │
@@ -75,6 +76,7 @@ The infrastructure provisions:
                                     │
                                     ▼
                           Kubernetes Cluster
+```
 
 
 ## Features
