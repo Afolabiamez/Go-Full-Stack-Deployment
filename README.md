@@ -8,7 +8,7 @@ This project was built as a real world simulation of how a Cloud/DevOps Engineer
 
 The application is deployed on Amazon EKS behind an AWS Application Load Balancer.
 
-![StartTech Application](images/frontend.png)
+![StartTech Application](images/frontendd.png)
 
 ## Project Architecture
 
